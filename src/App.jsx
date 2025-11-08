@@ -11,7 +11,7 @@ const useFetch = (url) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // A controller to abort the fetch request if the component unmounts
+   
     const abortController = new AbortController();
     
     const fetchData = async () => {
@@ -25,7 +25,7 @@ const useFetch = (url) => {
         const result = await response.json();
         setData(result);
       } catch (err) {
-        // Only set the error if the fetch was not aborted by the cleanup function
+        
         if (err.name !== 'AbortError') {
           setError(err.message || 'An unknown error occurred');
         }
@@ -36,7 +36,6 @@ const useFetch = (url) => {
 
     fetchData();
 
-    // Cleanup function to abort the fetch request on component unmount
     return () => abortController.abort();
   }, [url]);
 
@@ -86,7 +85,7 @@ const App = () => {
                   alt={product.title}
                   className="w-full h-48 object-cover rounded-t-xl"
                   onError={(e) => {
-                    e.target.onerror = null; // prevents infinite loop
+                    e.target.onerror = null; 
                     e.target.src = `https://placehold.co/600x400/374151/E5E7EB?text=No+Image`;
                   }}
                 />
