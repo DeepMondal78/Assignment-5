@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
 
+import React, { useEffect, useState } from "react";
 const App = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
