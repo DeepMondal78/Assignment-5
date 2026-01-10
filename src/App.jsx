@@ -1,54 +1,64 @@
+import { useEffect, useState } from "react";
+import "./App.css";
 
-import React, { useEffect, useState } from "react";
-const App = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+function App() {
+  const [productList, setProductList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
-    fetch("https://api.escuelajs.co/api/v1/products?limit=30&offset=0")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch data");
+    async function fetchProducts() {
+      try {
+        const response = await fetch(
+          "https://api.escuelajs.co/api/v1/products?limit=30"
+        );
+
+        if (!response.ok) {
+          throw new Error("Request failed");
         }
-        return res.json();
-      })
-      .then((data) => {
-        setProducts(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Something went wrong while fetching products");
-        setLoading(false);
-      });
+
+        const data = await response.json();
+        setProductList(data);
+      } catch {
+        setErrorMsg("Unable to load products. Try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProducts();
   }, []);
 
+  if (isLoading) {
+    return <p className="status-text">Loading products...</p>;
+  }
+
+  if (errorMsg) {
+    return <p className="error-text">{errorMsg}</p>;
+  }
+
   return (
-    <div style={{ padding: "20px", background: "#111", minHeight: "100vh", color: "#fff" }}>
-      <h1 style={{ textAlign: "center", color: "#E302F7", fontSize: "35px"}}>Product Catalog</h1>
+    <div className="app">
+      <h1 className="title">Product List</h1>
 
-      {loading && <p>Loading products..</p>}
+      <div className="product-grid">
+        {productList.map((product) => {
+          const imageUrl =
+            product.images && product.images[0]
+              ? product.images[0].replace("http://", "https://")
+              : "https://placehold.co/300x200";
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
-        {products.map((item) => (
-          <div key={item.id} style={{ background: "#222", padding: "10px", borderRadius: "8px" }}>
-            <img
-              src={item.images[0]}
-              alt={item.title}
-              style={{ width: "100%", height: "200px", objectFit: "cover" }}
-              onError={(e) => {
-                e.target.src = "https://placehold.co/300x200";
-              }}
-            />
-            <h3>{item.title}</h3>
-            <p>${item.price}</p>
-          </div>
-        ))}
+          return (
+            <div className="card" key={product.id}>
+              <img src={imageUrl} alt={product.title} />
+              <h3>{product.title}</h3>
+              <p className="price">${product.price}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-};
+}
 
 export default App;
